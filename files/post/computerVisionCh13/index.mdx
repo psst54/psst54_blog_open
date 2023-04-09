@@ -1,0 +1,98 @@
+---
+title: "Ch13. Face Recognition"
+category: ["2022Fall", "ComputerVision"]
+tag: ["CSEG418"]
+
+published_at: 2022-12-20T13:24:45Z
+last_modified_at: 2022-12-20T13:24:45Z
+
+summary: "Face Recognition"
+---
+
+# Challenges in Face Recognition
+
+- Pose, lighting, expression
+- Occlusion
+- Aging
+- Sketch vs. photo
+
+# Taxonomy of Face Recognition
+
+![Untitled](/post/computerVisionCh13/Untitled.png)
+
+- Appearance-based : entire image = one vector
+
+# Principle Component Analysis
+
+(PCA, Eigenfaces)
+
+face image → feature vector
+
+- The eigenvectors are sorted in order of descending eigenvalues and the **k greatest eigenvectors are chosen to represent face space**.
+- This reduces the dimensionality of the image space to k, yet maintains a high level of variance between face images throughout the image subspace.
+- Any face image can then be represented as a vector of coefficients, corresponding to the ‘contribution’ of each eigenfac
+
+---
+
+---
+
+Eye detection → Face cropping → high-pass filter / low-pass filter
+
+# Face Recognition Vendor Test
+
+FRVT 2006 consists of three input modes
+
+- still images with controlled lighting
+- still images with uncontrolled lighting
+- 3D images
+
+<Aside>
+note
+
+FAR : False Acceptance Rate
+
+- 인식되어서는 안 될 사람이 얼마나 자주 인식되는지
+
+FRR : False Rejection Rate
+
+- 인식되어야 할 사람이 얼마나 자주 인식되지 않는지
+
+</Aside>
+
+# Labeled Faces in the Wild
+
+# Active Appearance Models (AAM)
+
+For each example, extract shape and texture vector
+
+- shape, $x = (x_1, y_1, …, x_n, y_n)^T$
+- texture, $g$
+
+AAM model = Linear combination of shape **x** and texture **g**
+
+# Morphable Model (MM)
+
+3D version of AAM
+
+shape x is 3D
+
+# Invariance to Facial Variations
+
+![Untitled](/post/computerVisionCh13/Untitled1.png)
+
+### Video
+
+Video contains rich information (multiple frames, temporal information) that **can provide better face recognition performance**
+
+Challenges
+
+- The same face in a video undergoes substantial **variations in pose,
+  illumination**, etc. → frontal face recognition does not work
+- Videos captured by surveillance systems cannot be used for subject
+  identification because of the **low resolution**
+
+### Aging
+
+Brown Sisters
+
+### Face Marks

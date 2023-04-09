@@ -1,0 +1,90 @@
+---
+title: "BOJ 7579 앱"
+category: ["PS", "BOJ"]
+tag: [DP, BOJ]
+
+published_at: 2021-08-23T11:30:00Z
+last_modified_at: 2021-08-23T11:30:00Z
+
+summary: "조금 더 어려운 냅색 문제를 플어보자!"
+---
+
+# 7579 앱
+
+[https://www.acmicpc.net/problem/7579](https://www.acmicpc.net/problem/7579)
+
+<Aside>
+  N개의 앱 $A_1, ..., A_N$이 있다. 앱 $A_i$는 $m_i$의 메모리를 사용중이고, 이를
+  비활성한 후 다시 실행할 때 $c_i$의 비용이 든다. 이 중에서 몇 개를 비활성화시켜
+  M 이상의 메모리를 확보하는 동시에, $c_i$의 합을 최소로 만드는 문제이다.
+</Aside>
+
+<Aside>
+  $ 1 \leq N \leq 100 \newline 1 \leq M \leq 10,000,000 \newline 1 \leq m_1,
+  ..., m_N \leq 10,000,000 \newline 0 \leq c_1, ..., c_N \leq 100 \newline M
+  \leq m_1 + m_2 + ... + m_N $
+</Aside>
+
+- 평범한 배낭 문제는 _"N개의 물건을 잘 이용해 무게(K)를 넘지 않으면서 가치(V)를 최대로_" 만드는 문제이고,
+  이 문제는 _"N개의 앱을 잘 이용해 메모리(M)을 넘기면서 비용(C)을 최소로"_ 만드는 문제이다.
+- 평범한 배낭 문제에서처럼 dp[갯수][메모리]처럼 사용하기에는 M값이 너무 크다.
+- 하지만 c를 이용한다면? 모든 c는 100 이하이고, N도 100 이하이므로, 다시 실행하는 데 필요한 비용은 0~10000이 된다. c를 이용해서 dp테이블을 채우고 dp[N][c] (0 ≤ c ≤ 10000)중, M을 넘으면서 c가 가장 작을 때 c값이 정답이 된다.
+
+따라서 점화식은 다음처럼 세운다.
+
+- dp[i][j]는 1~i번째 앱 중 몇 개를 비활성화시키고, 그들을 다시 실행할 경우 cost의 합이 j일 때, 최대로 확보 가능한 메모리이다.
+
+1. 앱 i를 비활성화시키지 않는 경우
+   - dp[i][j]는 1 ~ i-1번째 앱 중 몇 개를 비활성화시키고 재실행 비용이 j일 때의 확보 가능한 최대 메모리와 같다.
+   - 따라서 `dp[i][j] = dp[i - 1][j]`이다.
+2. 앱 i를 비활성화시키는 경우
+   - 앱 i의 재실행 비용을 c, 앱 i를 비활성화시켜 확보할 수 있는 메모리를 m이라고 한다.
+   - i - 1번째까지를 고려했을 때 비용이 j - c인 상황에서 앱 i를 비활성화시켜야 한다.
+   - 따라서 `dp[i][j] = dp[i - 1][j - c]`이다.
+3. 같은 비용으로 더 많은 메모리를 확보하는 것이 이득이므로 `dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - c])`이다.
+
+- 아래 코드에서 마지막 for문은 M을 넘길 수 있는 가장 작은 c를 찾는 for문이다.
+
+```cpp
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int N, M, m[101], c;
+vector<vector<int> > dp;
+
+int main()
+{
+	ios::sync_with_stdio(false);
+	cin.tie(0);
+	cout.tie(0);
+
+	cin >> N >> M;
+	for (int i = 1; i <= N; i++)
+		cin >> m[i];
+	dp.resize(N + 1, vector<int>(10001, 0));
+
+	for (int i = 1; i <= N; i++)
+	{
+		cin >> c;
+
+		for (int j = 0; j <= 10000; j++)
+		{
+			dp[i][j] = dp[i - 1][j];
+			if (j >= c)
+				dp[i][j] = max(dp[i][j], dp[i - 1][j - c] + m[i]);
+		}
+	}
+
+	for (int j = 0; j <= 10000; j++)
+	{
+		if (dp[N][j] >= M)
+		{
+			cout << j;
+			return 0;
+		}
+	}
+
+	return 0;
+}
+```

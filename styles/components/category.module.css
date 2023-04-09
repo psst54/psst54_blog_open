@@ -1,0 +1,77 @@
+.postCard {
+  padding: 0.8rem 0;
+  /* border: 1px solid; */
+}
+.postCard:first-child {
+  padding: 0 0 0.8rem 0;
+}
+
+.postText:hover {
+  color: #f199a9;
+  transition: 0.1s;
+}
+
+.postTitle {
+  padding: 0.5rem 0 0.2rem 0;
+
+  font-weight: 600;
+  font-size: 1.4rem;
+}
+
+.postSummary {
+  padding: 0.2rem 0 0.5rem 0;
+}
+
+.tagList {
+  display: flex;
+  gap: 5px;
+}
+.tagItem {
+  background: #f199a9;
+  border-radius: 0.3rem;
+  padding: 0.2rem 0.5rem;
+
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.buttonContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.pageButton {
+  background: transparent;
+  border: none;
+  border-radius: 100rem;
+  width: 2rem;
+  height: 2rem;
+  margin: 0.2rem 0.2rem;
+  cursor: pointer;
+}
+
+.pageButton:hover {
+  background: #f199a933;
+  transition: 0.1s;
+}
+
+.selectedButton {
+  background: #f199a9;
+  color: white;
+}
+
+.prevNextButton {
+  background: transparent;
+  border: none;
+  border-radius: 100rem;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+
+  background: #f199a933;
+}
+.disabledButton {
+  background: transparent;
+  color: transparent;
+  cursor: default;
+}

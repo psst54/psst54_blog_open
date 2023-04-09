@@ -1,0 +1,187 @@
+---
+title: "[번역] Learn OpenGL : Textures"
+category: ["study", "LearnOpenGL"]
+tag: ["OpenGL"]
+
+published_at: 2022-11-07T09:00:00Z
+last_modified_at: 2022-11-07T09:00:00Z
+
+summary: "Learn OpenGL : Textures를 읽어보자"
+---
+
+# **Textures**
+
+We learned that to add more detail to our objects we can use colors for each vertex to create some interesting images. However, to get a fair bit of realism we'd have to have many vertices so we could specify a lot of colors. This takes up a considerable amount of extra overhead, since each model needs a lot more vertices and for each vertex a color attribute as well.
+
+우리는 물체에 세부 사항을 더하기 위해 각 vertex에 색상을 사용하여 흥미로운 이미지를 생성할 수 있음을 배웠다. 하지만, 사실성을 얻기 위해서는 많은 색상을 지정할 수 있도록 많은 vertex를 써야 한다. 각 모델이 더 많은 vertex를 필요로 하고 각 vertex에 대한 색상도 필요하기 때문에 이것은 많은 양의 추가적인 오버헤드를 불러온다.
+
+What artists and programmers generally prefer is to use a texture. A texture is a 2D image (even 1D and 3D textures exist) used to add detail to an object; think of a texture as a piece of paper with a nice brick image (for example) on it neatly folded over your 3D house so it looks like your house has a stone exterior. Because we can insert a lot of detail in a single image, we can give the illusion the object is extremely detailed without having to specify extra vertices.
+
+예술가들과 프로그래머들이 일반적으로 선호하는 것은 텍스처를 사용하는 것이다. 텍스처는 물체에 세부사항을 더해주기 위해서 사용되는 2D 이미지(심지어는 1D와 3D 텍스처도 존재한다.)이다. 텍스처를 (예를 들어) 당신의 집이 벽돌 외관을 가진 것처럼 보이게 만들기 위해서 당신의 3D 집 위에 깔끔하게 접어 놓은 멋진 벽돌 이미지가 그려진 종이 조각으로 생각하라. 우리는 이미지 하나에 많은 세부 사항을 넣을 수 있기 때문에, 우리는 추가적인 vertex 없이 물체가 매우 상세하다는 착시를 줄 수 있다.
+
+<Aside>
+Next to images, textures can also be used to store a large collection of arbitrary data to send to the shaders, but we'll leave that for a different topic.
+
+이미지 외에도, 텍스처는 shader에 보낼 대량의 임의 데이터 모음을 저장하는 데에 사용할 수도 있지만, 그것은 다른 주제로 남겨둔다.
+
+</Aside>
+
+Below you'll see a texture image of a [brick wall](https://learnopengl.com/img/textures/wall.jpg) mapped to the triangle from the previous chapter.
+
+아래에서 이전 챕터의 삼각형에 매핑되는 벽돌 벽의 텍스처 이미지를 볼 수 있다.
+
+![Untitled](/post/LearnOpenGLTextures/Untitled.png)
+
+In order to map a texture to the triangle we need to tell each vertex of the triangle which part of the texture it corresponds to. Each vertex should thus have a texture coordinate associated with them that specifies what part of the texture image to sample from. Fragment interpolation then does the rest for the other fragments.
+
+텍스처를 삼각형에 매핑하기 위해서, 우리는 삼각형의 각 vertex가 텍스처의 어떤 부분에 대응하는지를 말해야 한다. 따라서 각 vertex는 텍스처 이미지의 어떤 부분을 샘플링할 것인지를 지정하는 텍스처 좌표를 가지고 있어야 한다. 그리고 나서 fragment interpolation은 다른 fragment에 대해 나머지 작업을 수행한다.
+
+Texture coordinates range from `0` to `1` in the `x` and `y` axis (remember that we use 2D texture images). Retrieving the texture color using texture coordinates is called sampling. Texture coordinates start at `(0,0)` for the lower left corner of a texture image to `(1,1)` for the upper right corner of a texture image. The following image shows how we map texture coordinates to the triangle:
+
+텍스처 좌표의 범위는 x축과 y축의 0에서 1까지이다(우리가 2D 텍스처 이미지를 사용함을 기억하라). 텍스처 좌표를 이용해서 텍스처의 색상을 되살리는 것을 샘플링이라고 부른다. 텍스처 좌표는 텍스처 이미지의 왼쪽 아래 모서리를 가리키는 (0, 0)에서 시작해서 텍스처 이미지의 오른쪽 위 모서리를 가리키는 (1, 1)까지이다. 다음 이미지는 우리가 어떻게 텍스처 좌표를 삼각형에 매핑하는지를 보여준다.
+
+![Untitled](/post/LearnOpenGLTextures/Untitled1.png)
+
+We specify 3 texture coordinate points for the triangle. We want the bottom-left side of the triangle to correspond with the bottom-left side of the texture so we use the `(0,0)` texture coordinate for the triangle's bottom-left vertex. The same applies to the bottom-right side with a `(1,0)` texture coordinate. The top of the triangle should correspond with the top-center of the texture image so we take `(0.5,1.0)` as its texture coordinate. We only have to pass 3 texture coordinates to the vertex shader, which then passes those to the fragment shader that neatly interpolates all the texture coordinates for each fragment.
+
+삼각형에 대한 텍스처 좌표점 3개를 지정한다. 삼각형의 삼각형의 왼쪽 아래 변이 텍스처의 왼쪽 아래 변과 일치하도록 삼각형의 왼쪽 아래 vertex에 (0, 0) 텍스처 좌표를 사용한다. 오른쪽 아래 변과 (1, 0) 텍스처 좌표에도 동일하게 적용된다. 삼각형의 위쪽 꼭짓점은 텍스처 이미지의 중앙 위와 대응해야 하기 때문에 텍스처 좌표 (0.5, 1.0)을 취한다. vertex shader에는 3개의 텍스처 좌표만 넘기면 되고, 그 다음에는 각 fragment에 대해 텍스처 좌표를 깔끔하게 보간하는 fragment shader에 전달된다.
+
+The resulting texture coordinates would then look like this:
+
+결과로 텍스처 좌표는 이렇게 보일 것이다.
+
+```cpp
+float texCoords[] = {
+    0.0f, 0.0f,  // lower-left corner
+    1.0f, 0.0f,  // lower-right corner
+    0.5f, 1.0f   // top-center corner
+};
+```
+
+Texture sampling has a loose interpretation and can be done in many different ways. It is thus our job to tell OpenGL how it should *sample*
+ its textures.
+
+텍스처 샘플링은 느슨하게 보간되며, 다양한 방법으로 수행될 수 있다. 따라서 OpenGL에 어떻게 텍스처를 샘플링할 것인가를 말하는 것은 우리의 일이다.
+
+## **Texture Wrapping**
+
+Texture coordinates usually range from `(0,0)` to `(1,1)` but what happens if we specify coordinates outside this range? The default behavior of OpenGL is to repeat the texture images (we basically ignore the integer part of the floating point texture coordinate), but there are more options OpenGL offers:
+
+텍스처 좌표는 보통 (0, 0)부터 (1, 1)까지이지만, 이 범위를 벗어난 좌표를 지정하면 어떻게 될까? OpenGL의 기본 행동은 텍스처 이미지를 반복하는 것이지만(우리는 부동 소수점 텍스처 좌표의 정수 부분은 무시한다), OpenGL에서 더 다양한 옵션을 제공한다.
+
+- `GL_REPEAT`: The default behavior for textures. Repeats the texture image.
+  텍스처에 적용되는 기본 행동이다. 텍스처 이미지를 반복한다.
+- `GL_MIRRORED_REPEAT`: Same as `GL_REPEAT` but mirrors the image with each repeat.
+  `GL_REPEAT` 과 같지만 매 반복마다 이미지를 뒤집는다.
+- `GL_CLAMP_TO_EDGE`: Clamps the coordinates between `0` and `1`. The result is that higher coordinates become clamped to the edge, resulting in a stretched edge pattern.
+  0와 1 사이의 좌표를 고정한다. 그 결과 큰 좌표가 가장자리에 고정되고 가장자리의 패턴이 늘어난다.
+- `GL_CLAMP_TO_BORDER`: Coordinates outside the range are now given a user-specified border color.
+  범위 밖의 좌표들은 유저가 지정한 테두리 색이 부여된다.
+
+Each of the options have a different visual output when using texture coordinates outside the default range. Let's see what these look like on a sample texture image (original image by Hólger Rezende):
+
+각 옵션들은 기본 범위 바깥의 텍스처 좌표들을 사용할 때 다른 시각적 결과를 가진다. 샘플 텍스처 이미지에서 이들이 어떻게 보이는지 알아보자(원본 이미지 Hólger Rezende).
+
+![Untitled](/post/LearnOpenGLTextures/Untitled2.png)
+
+Each of the aforementioned options can be set per coordinate axis (`s`, `t`  (and `r` if you're using 3D textures) equivalent to x, y, z) with the `glTexParameter*` function:
+
+각각 앞서 언급한 옵션들은 `glTexParameter*` 함수를 이용해서 좌표축 (s, t (그리고 3D 텍스처를 사용한다면 r)) 별로 설정될 수 있다.
+
+```cpp
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+```
+
+The first argument specifies the texture target; we're working with 2D textures so the texture target is `GL_TEXTURE_2D`. The second argument requires us to tell what option we want to set and for which texture axis; we want to configure it for both the `S` and `T` axis. The last argument requires us to pass in the texture wrapping mode we'd like and in this case OpenGL will set its texture wrapping option on the currently active texture with GL_MIRRORED_REPEAT.
+
+첫 번째 인자는 목표 텍스처를 지정한다. 우리는 2D 텍스처를 이용하고 있개 때문에 텍스처 목표는 `GL_TEXTURE_2D`이다. 두 번째 인자는 어떤 텍스처 축에 대해서 옵션을 적용시킬지를 필요로 한다. 우리는 `S`와 `T`축 모두에 적용시키기를 원한다. 마지막 인자는 원하는 텍스처 wrapping 모드를 전달하며 이 경우에는 OpenGL이 texture wrapping 옵션으로 현재 활성화된 텍스처에 `GL_MIRRORED_REPEAT`로 적용할 것이다.
+
+If we choose the GL_CLAMP_TO_BORDER option we should also specify a border color. This is done using the `fv` equivalent of the glTexParameter function with GL_TEXTURE_BORDER_COLOR as its option where we pass in a float array of the border's color value:
+
+만약 우리가 `GL_CLAMP_TO_BORDER` 옵션을 고른다면 테두리 색상도 지정해야 한다. 이는 fv
+
+```cpp
+float borderColor[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+```
+
+## **Texture Filtering**
+
+Texture coordinates do not depend on resolution but can be any floating point value, thus OpenGL has to figure out which texture pixel (also known as a texel ) to map the texture coordinate to. This becomes especially important if you have a very large object and a low resolution texture. You probably guessed by now that OpenGL has options for this texture filtering as well. There are several options available but for now we'll discuss the most important options: `GL_NEAREST` and `GL_LINEAR`.
+
+텍스처 좌표는 해상도에 의존하지 않지만 부동소수점 값이 될 수 있으므로 OpenGL은 어떤 텍스처 픽셀(texel이라고도 함)이 텍스처 좌표에 매핑될 지 파악해야 한다. 이것은 매우 큰 물체와 낮은 해상도의 텍스처를 가진 경우에 매우 중요해진다. 지금쯤 OpenGL이 텍스처 필터링에 대해서 옵션들을 가지고 있다고 짐작했을 것이다. 몇 가지 옵션을 사용할 수 있지만, 현재로서는 가장 중요한 옵션인 `GL_NEAREST`와 `GL_LINEAR`에 대해 알아보자.
+
+`GL_NEAREST` (also known as nearest neighbor or point filtering) is the default texture filtering method of OpenGL. When set to `GL_NEAREST`, OpenGL selects the texel that center is closest to the texture coordinate. Below you can see 4 pixels where the cross represents the exact texture coordinate. The upper-left texel has its center closest to the texture coordinate and is therefore chosen as the sampled color:
+
+`GL_NEAREST`(nearest neighbor 또는 point filtering이라고도 알려짐)는 OpenGL에서 기본적인 텍스쳐 필터링 방법이다. `GL_NEAREST`로 설정되면, OpenGL은 중심이 텍스처 좌표에 가장 가까운 texel을 선택한다. 아래 그림에서 십자가가 정확한 텍스처 좌표를 나타내는 4픽셀을 볼 수 있다. 왼쪽 위 texel의 중심은 텍스처 좌표에 가장 가깝기 때문에 샘플링된 색상으로 선택된다.
+
+![Untitled](/post/LearnOpenGLTextures/Untitled3.png)
+
+`GL_LINEAR`
+ (also known as (bi)linear filtering) takes an interpolated value from the texture coordinate's neighboring texels, approximating a color between the texels. The smaller the distance from the texture coordinate to a texel's center, the more that texel's color contributes to the sampled color. Below we can see that a mixed color of the neighboring pixels is returned:
+
+`GL_LINEAR`((bi)linear filtering으로도 알려짐)은 텍스처 좌표의 인접 texel로부터 보간된 값을 가져와서 텍스처 사이의 색을 근사한다. 텍스처 좌표에서 texel의 중심까지 거리가 더 가까울수록, 샘플링된 색상에 texel의 색상이 더 많이 기여한다. 아래 그림에서 인접한 픽셀들의 혼합된 색상이 반환되는 것을 볼 수 있다.
+
+![Untitled](/post/LearnOpenGLTextures/Untitled4.png)
+
+But what is the visual effect of such a texture filtering method? Let's see how these methods work when using a texture with a low resolution on a large object (texture is therefore scaled upwards and individual texels are noticeable):
+
+그러나 그러한 텍스처 필터링 방법의 시각적 효과는 무엇인가? 큰 물체에서 낮은 해상도의 텍스처를 사용할 때 이러한 방법이 어떻게 작동하는지 알아보자 (그러므로 텍스처는 크게 조정되고 각 texel들이 관찰된다).
+
+![Untitled](/post/LearnOpenGLTextures/Untitled5.png)
+
+`GL_NEAREST` results in blocked patterns where we can clearly see the pixels that form the texture while `GL_LINEAR` produces a smoother pattern where the individual pixels are less visible. `GL_LINEAR` produces a more realistic output, but some developers prefer a more 8-bit look and as a result pick the `GL_NEAREST` option.
+
+`GL_NEAREST`는 텍스처를 형성하는 픽셀들을 명확하게 볼 수 있는 덩어리진 패턴을 낳지만 `GL_LINEAR`는 개별적인 픽셀들은 덜 보이는 부드러운 패턴을 만든다. `GL_LINEAR`는 더 사실적인 결과물을 만들지만, 몇몇 개발자들은 8-bit 모양을 선호하기 때문에 `GL_NEAREST` 옵션을 고른다.
+
+Texture filtering can be set for magnifying and minifying operations (when scaling up or downwards) so you could for example use nearest neighbor filtering when textures are scaled downwards and linear filtering for upscaled textures. We thus have to specify the filtering method for both options via `glTexParameter*`. The code should look similar to setting the wrapping method:
+
+텍스처 필터링은 확대하고 축소하는 작업(확대 또는 축소 시)으로 설정될 수 있으므로 예를 들어 텍스처가 작게 변환될 때 nearest neighbor filtering을 사용하거나 텍스처가 크게 변환되었을 때 linear filtering을 사용할 수 있다. 따라서 우리는 `glTexParameter*`를 통해 두 옵션에 대한 필터링 방법을 지정해야 한다. 코드는 _wrapping_ 방법 설정과 비슷해야 한다.
+
+```cpp
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+```
+
+## Mipmaps
+
+Imagine we had a large room with thousands of objects, each with an attached texture. There will be objects far away that have the same high resolution texture attached as the objects close to the viewer. Since the objects are far away and probably only produce a few fragments, OpenGL has difficulties retrieving the right color value for its fragment from the high resolution texture, since it has to pick a texture color for a fragment that spans a large part of the texture. This will produce visible artifacts on small objects, not to mention the waste of memory bandwidth using high resolution textures on small objects.
+
+각각 텍스처가 붙어 있는 수천 개의 물체가 있는 커다란 방을 상상해보자. 관찰자에 가까운 고해상도의 텍스처가 붙어 있는 물체들과 동일한 물체들이 멀리에도 있을 것이다. 물체들은 멀리 있고 아마 몇몇 fragment만을 생성할 것이기 때문에, OpenGL은 텍스처의 큰 부분을 확장하는 fragment를 위한 텍스처 색상을 골라야 하기 때문에, 고해상도 텍스처에서 fragment를 위한 맞는 색상을 찾는 데 어려움이 있다. 이것은 작은 물체들에 고해상도의 텍스처를 사용하는 메모리 대역폭의 낭비는 말할 것도 없고 작은 물체에서 눈에 보이는 인공물을 생성할 것이다.
+
+To solve this issue OpenGL uses a concept called mipmaps that is basically a collection of texture images where each subsequent texture is twice as small compared to the previous one. The idea behind mipmaps should be easy to understand: after a certain distance threshold from the viewer, OpenGL will use a different mipmap texture that best suits the distance to the object. Because the object is far away, the smaller resolution will not be noticeable to the user. OpenGL is then able to sample the correct texels, and there's less cache memory involved when sampling that part of the mipmaps. Let's take a closer look at what a mipmapped texture looks like:
+
+이 문제를 해결하기 위해서 OpenGL은 기본적으로 연속하는 텍스처가 이전 텍스처보다 1/2 크기인 텍스처 이미지들의 모음을 이르는 mipmap이라는 개념을 사용한다. mipmap에 들어 있는 아이디어는 이해하기 쉬워야 한다: 관찰자로부터 일정 거리 임계점이 지나면, OpenGL은 물체까지의 거리에 가장 맞는 다른 mipmap 텍스처를 사용할 것이다. 물체가 멀리 있으므로, 더 작은 해상도는 유저에게 보이지 않을 것이다. 그리하여 OpenGL은 맞는 texel을 찾을 수 있고, mipmap의 부분을 샘플링할 때 관여하는 캐시 메모리는 더 적을 것이다. mipmap 텍스처가 어떻게 생겼는지 더 자세히 알아보자.
+
+![Untitled](/post/LearnOpenGLTextures/Untitled6.png)
+
+Creating a collection of mipmapped textures for each texture image is cumbersome to do manually, but luckily OpenGL is able to do all the work for us with a single call to `glGenerateMipmap` after we've created a texture.
+
+각 텍스처 이미지에 대해서 mipmap 텍스처의 모음을 수동으로 생성하는 것은 성가시지만, 운좋게도 우리가 텍스처를 생성하고 나서 `glGenerateMipmap`를 호출하는 것으로 OpenGL이 모든 작업을 할 수 있다.
+
+When switching between mipmaps levels during rendering OpenGL may show some artifacts like sharp edges visible between the two mipmap layers. Just like normal texture filtering, it is also possible to filter between mipmap levels using `NEAREST` and `LINEAR` filtering for switching between mipmap levels. To specify the filtering method between mipmap levels we can replace the original filtering methods with one of the following four options:
+
+렌더링 중에 mipmap 레벨 사이를 이동할 때 OpenGL은 두 mipmap 레이어 사이에 날카로운 모서리같은 물체를 보여줄 지도 모른다. 일반 텍스처 필터링처럼, mipmap 레벨 사이를 이동하기 위해 그 사이에 NEAREST와 LINEAR 필터링을 사용하는 것도 가능하다. mipmap 레벨 사이에 필터링 방법을 지정하기 위해서 우리는 기본 방법을 다음 4가지 옵션 중 하나로 대체할 수 있다.
+
+- `GL_NEAREST_MIPMAP_NEAREST`: takes the nearest mipmap to match the pixel size and uses nearest neighbor interpolation for texture sampling.
+  `GL_NEAREST_MIPMAP_NEAREST`: 픽셀 사이즈와 일치하도록 가장 가까운 mipmap을 가져와 텍스처 샘플링에 nearest neighbor 보간을 사용한다.
+- `GL_LINEAR_MIPMAP_NEAREST`: takes the nearest mipmap level and samples that level using linear interpolation.
+  `GL_LINEAR_MIPMAP_NEAREST`: 가장 가까운 mipmap 레벨을 가져와 선형 보간 방법을 사용해 샘플링한다.
+- `GL_NEAREST_MIPMAP_LINEAR`: linearly interpolates between the two mipmaps that most closely match the size of a pixel and samples the interpolated level via nearest neighbor interpolation.
+  `GL_NEAREST_MIPMAP_LINEAR`: 픽셀 사이즈와 가장 가깝게 맞는 두 mipmap 사이를 선형으로 보간하고 보간된 레벨에서 nearest neighbor 보간법으로 샘플링한다.
+- `GL_LINEAR_MIPMAP_LINEAR`: linearly interpolates between the two closest mipmaps and samples the interpolated level via linear interpolation.
+  `GL_LINEAR_MIPMAP_LINEAR`: 가장 가까운 mipmap을 선형으로 보간하고 보간된 레벨을 선형 보간법으로 샘플링한다.
+
+Just like texture filtering we can set the filtering method to one of the 4 aforementioned methods using `glTexParameteri`:
+
+텍스처 필터링과 마찬가지로 우리는 `glTexParameteri`를 사용해서 필터링 방법을 위에서 언급된 4가지 방법 중 하나로 설정할 수 있다.
+
+```cpp
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+```
+
+A common mistake is to set one of the mipmap filtering options as the magnification filter. This doesn't have any effect since mipmaps are primarily used for when textures get downscaled: texture magnification doesn't use mipmaps and giving it a mipmap filtering option will generate an OpenGL `GL_INVALID_ENUM` error code.
+
+흔한 실수는 mipmap 필터링 옵션 중 하나를 확대 필터로 설정하는 것이다. mipmap은 주로 텍스처가 축소될 때 주로 사용되기 때문에 아무런 효과가 없다. 텍스처 확대는 mipmap을 사용하지 않으며 확대를 위해 mipmap 필터링 옵션을 주는 것은 OpenGL `GL_INVALID_ENUM` 에러 코드를 만들 것이다.

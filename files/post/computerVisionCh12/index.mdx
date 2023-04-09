@@ -1,0 +1,162 @@
+---
+title: "Ch12. Recognition"
+category: ["2022Fall", "ComputerVision"]
+tag: ["CSEG418"]
+
+published_at: 2022-12-20T13:24:37Z
+last_modified_at: 2022-12-20T13:24:37Z
+
+summary: "Recognition"
+---
+
+# What Matters in Recognition?
+
+Learning Techniques
+
+- E.g. choice of **classifier or inference method**
+
+Representation
+
+- Low level: SIFT, HoG, gist, edges
+- Mid level: Bag of words, sliding window, deformable model
+- High level: Contextual information
+
+Data
+
+- More is always better
+- Annotation is the difficult part
+
+### Video Google System
+
+1. Collect **all words** within query region
+2. **Inverted file index** to find relevant frames
+3. Compare word counts
+4. Spatial verification
+
+## Simple idea
+
+See how many keypoints are close to keypoints in each other image
+
+⇒ slow
+
+## Indexing local features
+
+When we see close points in feature space, we have similar descriptors, which indicates similar local content.
+
+### Visual words
+
+Map high-dimensional descriptors to tokens/words by quantizing the feature space
+
+- Quantize via clustering, let cluster centers be the **prototype words**
+- Determine which word to assign to each new image region by finding the closest cluster center
+
+![Untitled](/post/computerVisionCh12/Untitled.png)
+
+### Issues:
+
+- Vocabulary size, number of words
+- Sampling strategy : grid or interest points
+- Clustering / quantization algorithm
+- Unsupervised vs. supervised
+- What corpus provides features (universal vocabulary?)
+
+### Inverted file index
+
+![Untitled](/post/computerVisionCh12/Untitled1.png)
+
+## Instance recognition
+
+remaining issues
+
+1.  How to summarize the content of an entire image? And gauge overall similarity?
+
+    ### Bags of visual words
+
+    - Summarize entire image based on its distribution (histogram) of word occurrences.
+    - Comparing bags of words : **nearest neighbor search**
+    - Inverted file index and bags of words similarity
+      1. Extract words in query
+      2. Inverted File index to find relevant frames
+      3. Compare word counts
+
+2.  How large should the vocabulary be? How to perform quantization efficiently?
+
+    ![Untitled](/post/computerVisionCh12/Untitled2.png)
+
+    ### Recognition with K-tree
+
+    Use Maximally Stable Extremal Regions by Matas et al. and then **extract SIFT descriptors from the MSER regions**.
+
+    ![Untitled](/post/computerVisionCh12/Untitled3.png)
+
+    ![Untitled](/post/computerVisionCh12/Untitled4.png)
+
+    - Run k(branch-factor of the tree / 3 here)-means on the descriptor space
+    - Run k-means again, recursively on each of the resulting quantization cells.
+    - This defines the vocabulary tree, which is essentially a hierarchical set of cluster centers and their corresponding Voronoi regions.
+    - We typically use a branch-factor of 10 and six levels, resulting in a million leaf nodes
+
+    ![Untitled](/post/computerVisionCh12/Untitled5.png)
+
+    - In order to add an image to the database, we **perform feature extraction**. Each descriptor vector is now dropped down from the root of the tree and quantized very efficiently into a path down the tree, encoded by a single integer.
+    - Each node in the vocabulary tree **has an associated inverted file index.**
+
+    ***
+
+    - Number of words given tree parameters
+      - branching factor
+      - number of levels
+      - Higher branch factor works better (but slower)
+        ![Untitled](/post/computerVisionCh12/Untitled6.png)
+    - Word assignment cost vs. flat vocabulary
+    - sampling strategies
+      - sparse, at interest points
+      - dense, uniformly
+      - randomly
+      - multiple interest operators
+
+3.  Is having the same set of visual words enough to identify the object/scene? How to verify spatial agreement?
+
+    ![Untitled](/post/computerVisionCh12/Untitled7.png)
+
+    - with spatial information, first one is better
+    - without, there is no difference
+
+    ### Spatial Verification
+
+    ![Untitled](/post/computerVisionCh12/Untitled8.png)
+
+    ![Untitled](/post/computerVisionCh12/Untitled9.png)
+
+4.  How to score the retrieval results?
+
+          <Aside>
+
+    💡 $\text{Precision} = {\text{TP}\over\text{TP + FP}} = {\text{relevant}\over\text{returned}}$
+    $\text{Recall} = {\text{TP}\over\text{TP + FN}} = {\text{relevant}\over\text{total relevant}}$
+
+          </Aside>
+
+    ### tf-idf weighting
+
+    Tern frequency - inverse document frequency
+
+    ![Untitled](/post/computerVisionCh12/Untitled10.png)
+
+## Query Expansion
+
+query → results → spatial verification → new query → new results
+
+## Keys to efficiency
+
+Simple approach : Keypoint matching
+
+- All-pairs local feature matching is slow
+  ⇒ quantize features and build bag of feature representation.
+  ⇒ Lossy
+  ⇒ spatial verification can help
+- Finding the overlap in visual words based on the Bags of Features is still too slow
+  ⇒ **interted file index**, one lookup per word
+- Even quantizing the local features into a visual word is too slow
+  ⇒ **vocabulary tree**.
+  ⇒ Lossy

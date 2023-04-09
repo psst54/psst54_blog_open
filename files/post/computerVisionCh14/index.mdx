@@ -1,0 +1,117 @@
+---
+title: "Ch14. Deep Neural Networks"
+category: ["2022Fall", "ComputerVision"]
+tag: ["CSEG418"]
+
+published_at: 2022-12-20T13:24:54Z
+last_modified_at: 2022-12-20T13:24:54Z
+
+summary: "before NN and DNN, CNN"
+---
+
+# Challenges of Image Classification
+
+- Viewpoint variation
+- Illumination
+- Deformation
+- Occlusion
+- Background Clutter
+
+Object detection/ Semantic segmentation/ Instance segmentation
+
+# Before Neural Nets, Classical Approach
+
+## Template-based Approach
+
+- Find a sub-image of the target image that matches a “template” image
+- Straightforward result, we know what we are looking for
+
+## Feature-based Approach
+
+- Find strong, representative features on images, like edges or corners
+- How to classify the result? Let a classifier “learn” the obtained features
+
+## Data-driven approach
+
+Use Machine Learning to train a classifier
+
+Use a feature descriptor combined with a classifier
+
+- **Feature descriptor** is a representation of useful information on an image
+  - Points, edges, curves, color ...
+  ### Histogram of Oriented Gradients (HOG)
+  - Characterizes object appearance and shape
+  - Gradient : Changes in pixel intensity across an image
+  - Image is divided into small connected regions called cells, calculate gradient for the pixels within each cell
+  - Normalization of histogram : group adjacent cells into regions called blocks, for invariance in illumination and shadowing
+  - Famous application : Histograms of Oriented Gradients for Human Detection
+    ![Untitled](/post/computerVisionCh14/Untitled.png)
+    - b : each pixel shows the maximu, positive SVM weight in the block centred on the pixel
+    - c : likewise for the negative SVM weights
+    - e : computed R(rectengular)-HOG descriptor
+    - f, g : the R-HOG descriptor weighted by respectively the positive and the negative SVM weights
+- **Classifier** is a method for determining class of unknown object
+  - Nearest Neighbours, K-Nearest Neighbours, Support Vector Machine (SVM) ..
+  ### Nearest Neighbour
+  - Simple training, just memorize all data and labels
+  - Compare images using Distance metric
+  ### K-Nearest Neighbour
+  - Consider majority vote from the K closest points
+  - Compare images using distance metric
+    ![Untitled](/post/computerVisionCh14/Untitled1.png)
+  ### Support Vector Machine (SVM)
+  - Suppose we have points in an n-dimensional space and class labels attached to those points. SVM will divide the space such that different classes ends on different sides of the plane
+  - Two types : linear and non-linear
+    ![Untitled](/post/computerVisionCh14/Untitled2.png)
+
+# Neural Network (NN)
+
+![Untitled](/post/computerVisionCh14/Untitled3.png)
+
+## Different options for Activation functions
+
+![Untitled](/post/computerVisionCh14/Untitled4.png)
+
+Sigmoid / tanh → problem of vanishing gradient
+
+ReLU : adventageous when back propagation
+
+# Deep Neural Network (DNN)
+
+- Shallow Neural Newrorks : 1 hidden layer
+- Deep Neural Networks : more than 2 hidden layer
+
+# Convolutional Neural Network (CNN)
+
+- **Local connectivity**
+- **Weight sharing**
+
+## Convolutional Layers
+
+- Slide over the image computing dot products with a filter/weight (represent features)
+- Produces a feature map
+
+## ReLU Layers
+
+Allows CNN to account for non-linear relationships
+
+Can use other activation functions
+
+- ReLU generally works better in practice
+- Sigmoid not recommended
+
+## Pooling Layers
+
+- Translational Invariance
+  ⇒ Output remains the same even if feature is moved a little
+- Reduce the size of feature map
+- Different ways to implement
+  - Max Pooling
+  - Average Pooling
+  - Min Pooling
+  - …
+
+## Fully-Connected Layers
+
+- Final layer
+- Returns probability of class for the objects in image

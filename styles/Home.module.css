@@ -1,0 +1,66 @@
+.fullScreen {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  background: #eceaf0;
+}
+
+.container {
+  width: 100%;
+  max-width: 1320px;
+  min-height: 100vh;
+
+  padding: 3% 3%;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap-reverse;
+
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.title {
+  color: #68c6f5;
+  text-shadow: -1px 0 #000, 0 1px #000, 1px 0 #000, 0 -1px #000;
+  color: #eceaf0;
+  text-shadow: -2px 0 #68c6f5, 0 2px #68c6f5, 2px 0 #68c6f5, 0 -2px #68c6f5;
+  font-weight: 900;
+  font-size: 3rem;
+}
+
+.headerMenu {
+  display: flex;
+  align-items: center;
+  list-style: none;
+}
+
+.menuTitle {
+  margin-right: 2rem;
+  font-size: 1.4rem;
+  font-weight: 900;
+  display: relative;
+}
+.menuTitle:hover {
+  color: #68c6f5;
+  transition: 0.1s;
+}
+.highlight {
+  display: inline-block;
+  position: relative;
+}
+
+.highlight::after {
+  content: "";
+  height: 10px;
+  display: inline-block;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  transition: 0.2s all;
+  background: #68c6f5;
+}

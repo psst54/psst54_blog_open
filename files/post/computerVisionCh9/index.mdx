@@ -1,0 +1,219 @@
+---
+title: "Ch9. Feature matching and fitting"
+category: ["2022Fall", "ComputerVision"]
+tag: ["CSEG418"]
+
+published_at: 2022-12-20T13:23:53Z
+last_modified_at: 2022-12-20T13:23:53Z
+
+summary: "RANSAC / Hough transform"
+---
+
+# Feature matching
+
+## Fitting and Alignment
+
+- Fitting
+  find the parameters of a model that best fit the data
+- Alignment
+  find the parameters of the transformation that best align matched points
+
+### method
+
+Global optimization / Search for parameters
+
+- Least squares fit
+- Robust least squares
+- Iterative closest point(ICP)
+
+Hypothesize and test
+
+- Generalized Hough transform
+- RANSAC
+
+# Least squares (global) optimization
+
+## Least squares line fitting
+
+![Untitled](/post/computerVisionCh9/Untitled.png)
+
+data $(x_1, y_1), ..., (x_n, y_n)$가 있고, $y_i = mx_i + b$라는 line equation이 있을 때, $(m, b)$를 최소화하자
+
+$E = \sum^n_{i=1}(y_i - mx_i - b)^2$
+
+- problem
+  - not rotation-invariant
+  - fails completely for vertical lines
+
+## Total least squares
+
+If $(a^2 + b^2 = 1)$ then distance between point $(x_i, y_i)$ is $|ax_i + by_i + c|$
+
+![Untitled](/post/computerVisionCh9/Untitled1.png)
+
+$(a, b, c)$를 최소화하자
+
+## PCA
+
+## Pros and Cons
+
+- Pros
+  - Clearly specified objective
+  - Optimization is easy
+- Cons
+  - May not be what you want to optimize
+  - Sensitive to outliers
+  - Doesn’t allow you to get multiple good fits
+
+# Voting
+
+## Difficulty of line fitting
+
+- Extra edge points, multiple models
+- Only some parts of each line detected, and some parts are missing
+- Noise is measured edge points, orientations
+
+## Voting
+
+- It’s not feasible to check all combinations of features by fitting a model to each possible subset.
+- Voting is a general technique where we let the features vote for all models that are compativle with it.
+- Noise & clumer features will cast votes too, but typically their votes shoud be inconsistent with the majority of “good” features
+- Ok if some features not obsered, as model can span multiple fragments.
+
+# RANSAC
+
+- RANdom SAmple Consensus
+- 배경 : line fitting을 함에 있어서, outlier들의 영향을 최소화하고싶음.
+
+![Untitled](/post/computerVisionCh9/Untitled2.png)
+
+![Untitled](/post/computerVisionCh9/Untitled3.png)
+
+- iterative하다
+  - 알고리즘
+    1. 임의로 seed 그룹을 뽑는다
+    2. seed 그룹에서 transformation을 계산한다.
+    3. inlier를 찾는다
+    4. lnlier의 갯수가 충분히 크다면, least squares를 계산한다
+  - 반복 횟수?
+    - w : lnlier의 비율
+    - n : hypothesis를 결정하기 위한 점의 수
+    - k : 반복 횟수
+    - n개의 점이 모두 inlier일 경우 : $w^n$
+    - k번의 반복이 모두 실패할 경우 : $(1 - w^n)^k$
+      ![Untitled](/post/computerVisionCh9/Untitled4.png)
+    - outlier의 비율이 증가할수록, 필요한 n의 크기가 커질수록 반복횟수 k도 커짐
+
+## After RANSAC
+
+- RANSAC divides data into inliers and outliers and yields estimate computed from minimal set of inliers.
+- Improve this initial estimate with estimation over all inliers
+- But this may change inliers, so refine fitting with reclassification as inlier/outlier
+
+## Pros & Cons
+
+- pros
+  - General method suited for a **wide range of model fitting** problems
+  - **Easy to implement** and **easy to calculate its failure rate**
+- cons
+  - Only handles a moderate percentage of outliers without cost blowing up
+  - Many **real problems have high rate of outliers** (but sometimes selective choice of random subsets can help)
+  - **Not good** for getting **multiple fits**
+- Common applications
+  - Computing a homography (e.g., image stitching)
+  - Estimating fundamental matrix (relating two views)
+
+## Other ways to search for parameters
+
+(when no closed form solution exists)
+
+cf. least square → closed form method / iterative(RANSAC) → closed form method
+
+- **Line search**
+  1. For each parameter, step through values and choose value that gives best fit
+  2. Repeat 1 until no parameter changes
+- **Grid search**
+  1. Propose several sets of parameters, evenly sampled in the joint set
+  2. Choose best (or top few) and sample joint parameters around
+     the current best; repeat
+- **Gradient descent**
+  1. Provide **initial position** (e.g., random)
+  2. Locally search for better parameters by following gradient
+
+## Hypothesize and test
+
+1. Propose parameters
+   - Try all possible
+   - **Each point votes for all consistent parameters**
+   - Repeatedly sample enough points to solve for parameters
+2. Score the given parameters
+   - Number of consistent points, possibly weighted by distance
+3. Choose from among the set of parameters
+   - **Global or local maximum** of scores
+4. Possibly refine parameters using inliers
+
+# Hough Transform
+
+- based on grid search
+
+## outline
+
+1. Create a grid of parameter values
+2. Each point votes for a set of parameters, incrementing those values in grid
+3. **Find maximum or local maxima in grid**
+
+## Using m,b parameterization
+
+![Untitled](/post/computerVisionCh9/Untitled5.png)
+
+y = mx + b
+
+## Using r, $\theta$ parameterization
+
+- **parameter space [m,b] is unbounded…**
+  ⇒ Use a polar representation for the parameter space
+  ![Untitled](/post/computerVisionCh9/Untitled6.png)
+
+## Practical considerations
+
+- noisy data
+  ⇒ need to **adjust grid size of smooth**(gaussian smoothing will help)
+- spurious peaks due to uniform noise
+  - least square will not help
+  - RANSAC will not help
+- Bin size
+- Smoothing
+- Finding multiple lines
+- Finding line segments
+
+### How would we find circles?
+
+Of fixed radius
+
+- center(x, y)
+
+Of unknown radius
+
+- 3 values needed : center(x, y), radius
+
+## Pros & Cons
+
+- Pros
+  - **Robust to outliers: each point votes separately**
+  - Fairly **efficient** (much faster than trying all sets of parameters)
+  - Provides **multiple good fits** with single process
+- Cons
+  - **Some sensitivity to noise**
+  - Bin size trades off between noise tolerance, precision, and speed/memory
+    - Can be hard to find sweet spot
+  - Not suitable for more than a few parameters
+    - grid size grows exponentially
+
+## Common applications
+
+- Line fitting (also circles, ellipses, etc.)
+  - 2 params for line
+  - 3 params for circle
+  - 4 params for ellipse - not really recommended
+- Object instance recognition (parameters are affine transform)
+- Object category recognition (parameters are position/scale)
