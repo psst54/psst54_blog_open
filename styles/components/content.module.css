@@ -97,9 +97,8 @@
 }
 .styledBlockquote {
   border-left: 3px solid #68c6f5;
-  background: #68c6f522;
   margin: 0.5rem 0;
-  padding: 0 0.5rem;
+  padding: 0 1rem;
   line-height: 1.4rem;
 }
 

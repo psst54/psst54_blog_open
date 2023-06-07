@@ -24,7 +24,7 @@ const Content = ({
         <div className={styles.sidebar}>
           {categories.map(
             (category) =>
-              category.subCategory && (
+              category.subCategoryId && (
                 <div key={category.title}>
                   <ul className={styles.categoryName}>
                     <a href={`/category/${category.id}`}>
@@ -37,8 +37,8 @@ const Content = ({
 
                   {categories.map(
                     (subCategory) =>
-                      category.subCategory &&
-                      category.subCategory.includes(subCategory.id) && (
+                      category.subCategoryId &&
+                      category.subCategoryId.includes(subCategory.id) && (
                         <ul
                           className={styles.subCategoryName}
                           key={subCategory.id}
