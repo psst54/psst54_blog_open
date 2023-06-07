@@ -21,10 +21,12 @@ const Post = ({
   categories: Category[];
   currentPost: Post;
 }) => {
+  const message = `abs(YES) | ${currentPost.title}`;
+
   return (
     <div className={styles.fullScreen}>
       <Head>
-        <title>abs(YES) | {currentPost.title}</title>
+        <title>{message}</title>
         <meta
           name="viewport"
           content="width=device-width, height=device-height, initial-scale=1, minimum-scale=1.0, maximum-scale=1.0"
