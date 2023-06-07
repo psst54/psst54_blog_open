@@ -60,7 +60,7 @@ export const Category = defineDocumentType(() => ({
       type: "number",
       required: true,
     },
-    subCategory: {
+    subCategoryId: {
       type: "list",
       of: { type: "string" },
     },
